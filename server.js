@@ -19,11 +19,28 @@ app.use("/api/", limiter);
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: "Too many auth attempts" } });
 
 // ─── DATABASE ─────────────────────────────────────────────────────────────────
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/portfolioDB", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => console.log("✅ MongoDB connected"))
-  .catch(err => console.error("❌ MongoDB error:", err));
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
+  
+  if (!process.env.MONGO_URI) {
+    console.error("❌ MONGO_URI is missing from environment variables");
+    return;
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ MongoDB connected");
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err);
+  }
+};
+
+// Middleware to ensure DB connection before processing requests
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
 
 // ─── ROUTES ───────────────────────────────────────────────────────────────────
 app.use("/auth", authLimiter, require("./routes/auth"));
