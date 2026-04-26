@@ -24,5 +24,4 @@ A sleek, professional portfolio builder for creators. Build, manage, and showcas
    - `CLIENT_URL`
 4. Run locally: `npm run dev`
 
-## 📄 License
-MIT © 2026 Portfolio+
+© 2026 Portfolio+
